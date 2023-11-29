@@ -108,32 +108,31 @@ function myFunction() {
         console.log('resultsOracel', resultsOracel)
       }
     });
-    mysqlConnection.query(`SELECT * FROM khachhang except SELECT kh.* FROM khachhang kh
+
+  });
+  mysqlConnection.query(`SELECT * FROM khachhang except SELECT kh.* FROM khachhang kh
     JOIN chinhanh cn ON kh.MaCN = cn.MaCN
     JOIN khuvuc kv ON cn.MaKV = kv.MaKV
     WHERE kv.TenKV = 'Miền Nam'`, (selectErr, results) => {
-      results.forEach(async (row) => {
-        const { MaKH, MaCN, TenKH, NgaySinh, GioiTinh, Diachi, Sdt } = row;
-        const checkKhachHang = await executeOracleQuery(
-          `SELECT COUNT(*) AS COUNT FROM KHACHHANG WHERE MaKH = :MaKH`,
-          [MaKH]
-        );
+    results.forEach(async (row) => {
+      const { MaKH, MaCN, TenKH, NgaySinh, GioiTinh, Diachi, Sdt } = row;
+      const checkKhachHang = await executeOracleQuery(
+        `SELECT COUNT(*) AS COUNT FROM KHACHHANG WHERE MaKH = :MaKH`,
+        [MaKH]
+      );
 
-        if (checkKhachHang.rows[0][0] > 0) {
-          console.log("da ton tai", MaKH);
-        } else {
-          console.log('row', row);
-          const insertQuery = "INSERT INTO khachhang (MaKH, MaCN, TenKH, NgaySinh, GioiTinh, Diachi, Sdt) VALUES (:1, :2, :3, TO_DATE(:4, 'yyyy-mm-dd'), :5, :6, :7)";
+      if (checkKhachHang.rows[0][0] > 0) {
+        console.log("da ton tai", MaKH);
+      } else {
+        console.log('row', row);
+        const insertQuery = "INSERT INTO khachhang (MaKH, MaCN, TenKH, NgaySinh, GioiTinh, Diachi, Sdt) VALUES (:1, :2, :3, TO_DATE(:4, 'yyyy-mm-dd'), :5, :6, :7)";
 
-          const resultsOracle = await executeOracleQuery(insertQuery, [
-            MaKH, MaCN, TenKH, dayjs(NgaySinh).format('YYYY/MM/DD'), GioiTinh, Diachi, Sdt
-          ]);
-          console.log('resultsOracle', resultsOracle);
-        }
-      });
+        const resultsOracle = await executeOracleQuery(insertQuery, [
+          MaKH, MaCN, TenKH, dayjs(NgaySinh).format('YYYY/MM/DD'), GioiTinh, Diachi, Sdt
+        ]);
+        console.log('resultsOracle', resultsOracle);
+      }
     });
-
-
   });
 }
 setInterval(myFunction, 10000);
